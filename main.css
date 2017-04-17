@@ -1,0 +1,20 @@
+blockquote {color:blue; background-color:gold;}
+h1 {color:rgba(2, 2, 2, 255);}
+strong {color: #00f; color: #f00;}
+
+div {
+    font-family: DFKai-SB, BiauKai,arial;
+}
+
+div{
+    border: 1px solid green;
+}
+
+div {
+    leber-spacing: 1em; line-height:2em;
+}
+
+td[colspan="2"] {
+    font-size: 20px;
+}
+/* p {color:navy} */
