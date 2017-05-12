@@ -2,58 +2,191 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Untitled Document</title>
-    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <title>d3-start</title>
+    <script src="https://d3js.org/d3.v3.js"></script>
+    <style>
+        div{
+            font-size: 7px;
+        }
+    </style>
 </head>
 <body>
-    <svg width="300" height="200" id="svg1"></svg>
+    <p><a href="index.html">回首頁</a></p>
+
+<hr>
+    <p>D3-04-Data.pdf ---> P.35 練習：</p>
+    <p>製作長條圖：2016年8月台北市且發票數量大於10億張的項目</p>
     
-    <script>        
-        d3.select("#svg1")
-          .append("rect")
-          .attr({
-            "x":0,
-            "y":0,
-            "width":300,
-            "height":200,
-            "fill":"#FDF5E6"
-          });
+    <svg width="900" height="300" id="svg1"></svg>
+   
+    <script>
+       d3.json("invoice-taipei.json", function(dataSet){
+           var svg = d3.select("#svg1");
+           var fDataSet = dataSet.filter(function(d){
+               return d.amount > 1000000000 && d.date === "2016/8/1" && d.cid==="A";
+           })
+           for(var i=0; i<fDataSet.length; i++){
+              svg.append("text")
+                 .attr({
+                  "x":30,
+                  "y":50+20*i
+                 })
+                 .text(fDataSet[i].industry);
+
+              svg.append("rect")
+                 .attr({
+                  "x":300,
+                  "y":40+20*i,
+                  "width":fDataSet[i].amount/100000000,
+                  "height":16,
+                  "fill":"red"
+                 });
+           }
+       });
+    </script>
+    
+<hr style="border-top:1px dashed">
+
+    <p>D3-05-D3-Binding.pdf ---> P.22 練習：</p>
+    <p>把數字小於70改紅色</p>
+    
+    <script>
+        var arr = [85, 60, 99, 49, 77, 82];
         
-        for(var i=0; i<5; i=i+1){
-            d3.select("#svg1")
-              .append("rect")
-              .attr({
-                "x":0,
-                "y":45+30*i,
-                "width":300,
-                "height":2
+        bind(arr);
+        render();
+        
+        function bind(data){
+            var selection = d3.select("body")
+                              .selectAll("div")
+                              .data(data);
+            selection.enter().append("div");
+            selection.exit().remove();
+        }
+        function render(){
+            d3.selectAll("div")
+              .style({"font-size":"20px",
+                      "color":function(d){
+                                if(d<70){
+                                    return "red";
+                                }
+                              }
+                     })
+              .text(function(d,i){
+                return (i + 1) + ":" + d;
+              })
+        }    
+    </script>
+    
+<hr style="border-top:1px dashed">
+
+    <p>D3-05-D3-Binding.pdf ---> P.25 練習：</p>
+    <p>建立簡單動態圖表 按鈕新增</p>
+    
+    <svg2></svg2>
+    <div>
+        <input type="button" value="新增" onclick="update()">
+        <input type="button" value="移除" onclick="update_remove()">
+    </div>
+    
+    <script>
+        var arr = [85, 60, 99, 49, 77, 82, 60, 77, 88];     
+        var w = 900, h = 300, p = 100;
+
+        svg();
+        bind();
+        render();
+        
+        console.log(d3.selectAll("div"));
+        
+        function svg(){
+            d3.select("svg2").append("svg").attr({
+                id: "svg2",
+                width: w,
+                height: h
             });
         }
-
-        d3.select("#svg1")
-          .append("circle")
-          .attr({
-            "cx":150,
-            "cy":120,
-            "r":15
-          });
         
-        d3.select("#svg1")
-          .append("rect")
-          .attr({
-            "x":160,
-            "y":45,
-            "width":5,
-            "height":78
-          });
+        function bind(){
+//          Rect -----------------------------------
+            var selection = d3.select("#svg2")
+                              .selectAll("rect")
+                              .data(arr);
+            
+            selection.enter()
+                     .append("rect"); 
+            
+            selection.exit().remove();
+            
+//          Text-----------------------------------
+            var selection_text = d3.select("#svg2")
+                                   .selectAll("text")
+                                   .data(arr);
+            
+            selection_text.enter()
+                          .append("text"); 
+            
+            selection_text.exit()
+                          .remove();            
+        }
         
-        d3.select("#svg1")
-          .append("text")
-          .attr({
-            "x":140,
-            "y":200,
-            "font-size":40
-          }).text("A");
+        function render(){
+            
+            d3.select("#svg2")
+              .selectAll("rect")
+              .attr({
+                x: function(d,i){
+                    return p+(40+2)*i;
+                   },
+                y:function(d,i){
+                    return h-p-d;
+                   },
+                width: 40,
+                height: function(d,i){
+                            return d;
+                        },
+                fill: function(d,i){
+                         if(d<70){
+                            return "red";
+                         }
+                         else{
+                            return "lightgreen";
+                         }
+                      }
+              });
+            
+            d3.select("#svg2")
+              .selectAll("text")
+              .attr({
+                x:function(d,i){
+                    return p+(40+2)*i+10;
+                  },
+                y:function(d,i){
+                    return h-p+20;
+                  }
+              }).text(function(d){
+                        return d;
+                      })
+        }
+        
+        var random = function(N,M){
+            return Math.floor(Math.random()*(M-N+1) + N);
+        }
+        
+        function update(){
+            var num = random(10,100);
+            arr.push(num);
+            bind();
+            render();            
+        }
+        
+        function update_remove(){
+            arr.shift();
+            bind();
+            render();            
+        }
+        
     </script>
+
 </body>
 </html>

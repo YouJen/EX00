@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>d3-start</title>
+    <script src="https://d3js.org/d3.v3.js"></script>
+    <style>
+        div{
+            font-size: 7px;
+        }
+    </style>
+</head>
+<body>
+    <p><a href="index.html">回首頁</a></p>
+
+
+    
+<hr style="border-top:1px dashed">
+
+    <p>D3-05-D3-Binding.pdf ---> P.25 練習：</p>
+    <p>建立簡單動態圖表 按鈕新增</p>
+    
+    <svg2></svg2>
+    <div>
+        <input type="button" value="新增" onclick="update()">
+        <input type="button" value="移除" onclick="update_remove()">
+    </div>
+    
+    <script>
+        var arr = [85, 60, 99, 49, 77, 82, 60, 77, 88];     
+        var w = 800, h = 400, p = 100;
+        
+        svg();
+        bind();
+        render();
+        
+        console.log(d3.selectAll("div"));
+        
+        function svg(){
+            d3.select("svg2").append("svg").attr({
+                id: "svg2",
+                width: w,
+                height: h
+            });
+        }
+        
+        function bind(){
+//          Rect -----------------------------------
+            var selection = d3.select("#svg2")
+                              .selectAll("rect")
+                              .data(arr);
+            
+            selection.enter()
+                     .append("rect"); 
+            
+            selection.exit().remove();
+            
+//          Text-----------------------------------
+            var selection_text = d3.select("#svg2")
+                                   .selectAll("text")
+                                   .data(arr);
+            
+            selection_text.enter()
+                     .append("text"); 
+            
+            selection_text.exit().remove();            
+        }
+        
+        function render(){
+            
+            d3.select("#svg2").selectAll("rect")
+              .attr({
+                x: function(d,i){
+                    return p+(40+2)*i;
+                   },
+                y:function(d,i){
+                    return h-p-d;
+                   },
+                width: 40,
+                height: function(d,i){
+                            return d;
+                        },
+                fill: function(d,i){
+                         if(d<70){
+                            return "red";
+                         }
+                         else{
+                            return "lightgreen";
+                         }
+                      }
+              });
+            
+            d3.select("#svg2").selectAll("text")
+              .attr({
+                x:function(d,i){
+                    return p+(40+2)*i+10;
+                  },
+                y:function(d,i){
+                    return h-p+20;
+                  }
+              }).text(function(d){
+                        return d;
+                      })
+        }
+        
+        var random = function(N,M){
+            return Math.floor(Math.random()*(M-N+1) + N);
+        }
+        
+        function update(){
+            var num = random(10,100);
+            arr.push(num);
+            bind();
+            render();            
+        }
+        
+        function update_remove(){
+            arr.shift();
+            bind();
+            render();            
+        }
+        
+    </script>
+
+</body>
+</html>
