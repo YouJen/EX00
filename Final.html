@@ -45,7 +45,7 @@
     </tr>
     <tr>
         <td>技術文件：</td>
-        <td>D3.JS 互動式資料視覺化 Lecturer: LinJer 林哲 D3-08-interaction 讓視覺元素動起來 </td>
+        <td>D3.JS 互動式資料視覺化 Lecturer: LinJer 林哲緯「第九堂課 D3-07-Interaction 讓視覺元素動起來」jweb.ml</td>
     </tr>
     </table>
 
@@ -54,7 +54,7 @@
     <script>
 
     var m = [20, 20, 30, 20],
-        w = 960 - m[1] - m[3],
+        w = 1200 - m[1] - m[3],
         h = 500 - m[0] - m[2];
 
     var x,
@@ -70,7 +70,7 @@
                 .append("g")
                 .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
-    var stocks,
+    var students,
         Schools;
 
     // A line generator, for the dark stroke.
@@ -79,7 +79,7 @@
                  .x(function(d) { return x(d.Year); })
                  .y(function(d) { return y(d.Registration); });
 
-    // A line generator, for the dark stroke.
+    // A axis generator, for the dark stroke.
     var axis = d3.svg.line()
                  .interpolate("basis")
                  .x(function(d) { return x(d.Year); })
@@ -94,20 +94,20 @@
     d3.csv("students.csv", function(data) {
       var parse = d3.time.format("%b %Y").parse;
 
-      // Nest stock values by School.
+      // Nest students values by school.
       Schools = d3.nest()
                   .key(function(d) { return d.School; })
-                  .entries(stocks = data);
+                  .entries(students = data);
 
-      // Parse Years and numbers. We assume values are sorted by Year.
-      // Also compute the maximum Registration per School, needed for the y-domain.
+      // Parse dimension and measure. We assume values are sorted by year.
+      // Also compute the maximum registration per school, needed for the y-domain.
       Schools.forEach(function(s) {
             s.values.forEach(function(d) { d.Year = parse(d.Year); d.Registration = +d.Registration; });
             s.maxRegistration = d3.max(s.values, function(d) { return d.Registration; });
             s.sumRegistration = d3.sum(s.values, function(d) { return d.Registration; });
       });
 
-      // Sort by maximum Registration, descending.
+      // Sort by maximum registration, descending.
       Schools.sort(function(a, b) { return b.maxRegistration - a.maxRegistration; });
 
       var g = svg.selectAll("g")
@@ -122,7 +122,7 @@
       x = d3.time.scale().range([0, w - 60]);
       y = d3.scale.linear().range([h / 4 - 20, 0]);
 
-      // Compute the minimum and maximum Year across Schools.
+      // Compute the minimum and maximum year across schools.
       x.domain([
         d3.min(Schools, function(d) { return d.values[0].Year; }),
         d3.max(Schools, function(d) { return d.values[d.values.length - 1].Year; })
@@ -165,12 +165,12 @@
 
       var k = 1, n = Schools[0].values.length;
       d3.timer(function() {
-        draw(k);
-        if ((k += 2) >= n - 1) {
-          draw(n - 1);
-          setTimeout(horizons, delay);
-          return true;
-        }
+            draw(k);
+            if ((k += 2) >= n - 1) {
+                  draw(n - 1);
+                  setTimeout(horizons, delay);
+                  return true;
+            }
       });
     }
 
@@ -269,10 +269,10 @@
        .duration(duration)
        .each("end", function() { d3.select(this).attr("clip-path", null); });
 
-      setTimeout(stackedArea, duration + delay);
+      setTimeout(stacked, duration + delay);
     }
 
-    function stackedArea() {
+    function stacked() {
       var stack = d3.layout.stack()
                     .values(function(d) { return d.values; })
                     .x(function(d) { return d.Year; })
@@ -305,10 +305,10 @@
       t.select("text")
        .attr("transform", function(d) { d = d.values[d.values.length - 1]; return "translate(" + (w - 60) + "," + y(d.Registration / 2 + d.Registration0) + ")"; });
 
-      setTimeout(streamgraph, duration + delay);
+      setTimeout(stream, duration + delay);
     }
 
-    function streamgraph() {
+    function stream() {
       var stack = d3.layout.stack()
                     .values(function(d) { return d.values; })
                     .x(function(d) { return d.Year; })
@@ -334,10 +334,10 @@
       t.select("text")
        .attr("transform", function(d) { d = d.values[d.values.length - 1]; return "translate(" + (w - 60) + "," + y(d.Registration / 2 + d.Registration0) + ")"; });
 
-      setTimeout(overlappingArea, duration + delay);
+      setTimeout(overlapp, duration + delay);
     }
 
-    function overlappingArea() {
+    function overlapp() {
       var g = svg.selectAll(".School");
 
       line.y(function(d) { return y(d.Registration0 + d.Registration); });
@@ -364,10 +364,10 @@
          .duration(duration)
          .style("stroke-opacity", 1);
 
-      setTimeout(groupedBar, duration + delay);
+      setTimeout(group, duration + delay);
     }
 
-    function groupedBar() {
+    function group() {
       x = d3.scale.ordinal()
             .domain(Schools[0].values.map(function(d) { return d.Year; }))
             .rangeBands([0, w - 60], .1);
@@ -404,10 +404,10 @@
             .style("fill-opacity", 1);
       });
 
-      setTimeout(stackedBar, duration + delay);
+      setTimeout(bar, duration + delay);
     }
 
-    function stackedBar() {
+    function bar() {
       x.rangeRoundBands([0, w - 60], .1);
 
       var stack = d3.layout.stack()
@@ -446,10 +446,10 @@
               .style("stroke-opacity", 1);
           });
 
-      setTimeout(transposeBar, duration + Schools[0].values.length * 10 + delay);
+      setTimeout(transpose, duration + Schools[0].values.length * 10 + delay);
     }
 
-    function transposeBar() {
+    function transpose() {
       x.domain(Schools.map(function(d) { return d.key; }))
        .rangeRoundBands([0, w], .2);
 
@@ -485,10 +485,10 @@
          .duration(duration)
          .attr("x2", w);
 
-      setTimeout(donut,  duration / 2 + Schools[0].values.length * 10 + delay);
+      setTimeout(pie,  duration / 2 + Schools[0].values.length * 10 + delay);
     }
 
-    function donut() {
+    function pie() {
       var g = svg.selectAll(".School");
 
       g.selectAll("rect").remove();
@@ -522,7 +522,7 @@
             y0 = h - y(d.data.sumRegistration);
 
         return function(t) {
-          var r = h / 3 / Math.min(1, t + 1e-3),
+          var r = h / 3.5 / Math.min(1, t + 1e-3),
               a = Math.cos(t * Math.PI / 2),
               xx = (-r + (a) * (x0 + x.rangeBand()) + (1 - a) * (w + h) / 2),
               yy = ((a) * h + (1 - a) * h / 2),
@@ -539,10 +539,10 @@
         };
       }
 
-      setTimeout(donutExplode, duration + delay);
+      setTimeout(explode, duration + delay);
     }
 
-    function donutExplode() {
+    function explode() {
       var r0a = h / 2 - x.rangeBand() / 2,
           r1a = h / 2,
           r0b = 2 * h - x.rangeBand() / 2,
@@ -550,20 +550,20 @@
           arc = d3.svg.arc();
 
       svg.selectAll(".School path")
-          .each(transitionExplode);
+          .each(explode);
 
-      function transitionExplode(d, i) {
+      function explode(d, i) {
         d.innerRadius = r0a;
         d.outerRadius = r1a;
         d3.select(this).transition()
-            .duration(duration / 2)
-            .tween("arc", tweenArc({
+          .duration(duration / 2)
+          .tween("arc", divergence({
               innerRadius: r0b,
               outerRadius: r1b
             }));
       }
 
-      function tweenArc(b) {
+      function divergence(b) {
         return function(a) {
           var path = d3.select(this),
               text = d3.select(this.nextSibling),
